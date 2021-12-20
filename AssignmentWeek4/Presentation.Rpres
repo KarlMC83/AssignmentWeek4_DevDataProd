@@ -1,0 +1,88 @@
+ Peru: Google COVID-19 Trends (Shiny APP)
+========================================================
+author: Karl Melgarejo Castillo
+date: December 18, 2021.
+autosize: true
+
+<style>
+.reveal .slides section .slideContent ul li{
+    font-size: 20pt;
+    color: black;
+}
+</style>
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = '', fig.width = 6, fig.height = 6
+)
+```
+
+Motivation
+========================================================
+
+- Due to the COVID-19 pandemic, governments around the world have set restrictions to social mobility in order to avoid a further propagation of the virus.
+
+- For this reason, Google has provided information about social mobility trends over time by geography, across different categories of places.
+
+- I created a Shiny APP to access this Google data corresponding to the social mobility in Peru, my country.  
+
+- I show 5 categories of places: retail and recreation, groceries and pharmacies, parks, transit stations, and workplaces.
+
+- Also, this APP has the option to exclude weekends to have a better visualization of the trend in each indicator.
+
+
+Google Data for Peru
+========================================================
+
+- I pre-processed the data to improve the speed of the APP. The principal variables are shown below, and the dimension of the data set:
+
+```{r, echo=FALSE}
+gm <- read.csv(file = "./GoogleData/Global_Mobility_Report_Peru.csv")
+```
+```{r, echo=TRUE}
+names(gm)[11:15]
+dim(gm)
+```
+
+Some calculations 
+========================================================
+
+- To have a better visualization of the trend, this APP has the option to remove weekends. I show the code below.
+
+- The number of observations when excluding the weekends is shown in the APP.
+
+```{r, echo=FALSE}
+  # Changing format
+  gm$date <- as.Date(gm$date)
+```
+
+```{r, echo=TRUE}
+  # Selecting only weekdays
+  library(lubridate)
+  gm$week <- wday(gm$date)
+  gm_w <- gm[gm$week>1 & gm$week<7,]
+  dim(gm)
+  dim(gm_w)
+```
+
+Plot of Retail and Recreation
+========================================================
+
+- Here I show one of the indicators that can be analysed in the APP, with and without weekends (blue line). 
+- The last option helps to visualize the trend.
+
+```{r, echo=FALSE}
+par(mar = c(4, 4, 2, .1))
+plot(y = gm[,11], x = gm$date, type = "l",
+        main = "Complete data",
+        xlab = "Date", ylab = "% Change from baseline", xaxt = "n")
+        axis.Date(1, at=seq(min(gm$date), 
+                            max(gm$date), by="quarters"), format="%b-%Y")
+
+plot(y = gm_w[,11], x = gm_w$date, type = "l",
+        main = "Without Weekends",
+        xlab = "Date", ylab = "% Change from baseline", col="blue", xaxt = "n")
+        axis.Date(1, at=seq(min(gm_w$date), 
+                            max(gm_w$date), by="quarters"), format="%b-%Y")
+```
+
